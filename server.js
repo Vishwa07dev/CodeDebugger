@@ -1,57 +1,48 @@
-/**
- * This file has the logic for the backend
- */
-const express  = require('express');
+const express = require('express');
 const bodyParser = require('body-parser');
 const openAIApi = require('openai');
 
+
 const app = express();
-app.use(express.static("public"));
 app.use(bodyParser.json());
+app.use(express.static("public"));
 
 
-/**
- * Make a connection with OpenAI
- */
 const openai = new openAIApi({
-    apiKey : "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"
+    apiKey : "PUT Your SECRET CODE HERE"
 })
 
-
 /**
- * Create the API Backend for debugging the code
+ * Create the API endpoint for code debugging
  */
 app.post("/debug", async (req, res)=>{
+    const { code, language} = req.body;
 
-     const {code , language } = req.body ;
-
-     /**
-      * Make a call to openAI  to debug the code 
-      * 
-      */
-     try{
+    //Make a call to openAI to debug the code
+    try{
         const response = await openai.chat.completions.create({
             model : 'gpt-4',
-            message : [
+            messages : [
                 {
                     role : 'system',
-                    content : `You are a code debugging assistant specializing in ${language}`
+                    content : `you are a code debugging assistant specializing in ${language}.`
                 },
                 {
-                   role : 'user',
-                   content : `Please debug the following ${language} code:\n\n${code}`
+                    role : 'user',
+                    content : `Plese debug the following ${language} code:\n\n${code} `
                 }
             ]
+
         });
         const result = response.choices[0].message.content;
         res.json({result});
-     }catch(err){
-        console.log(err);
+    }catch( err){
+        console.error(err);
         res.statusCode(500).json({
-            error: 'Something went wronng'
+            error : "Something went wrong"
         })
-     }
-
+    }
 })
 
-app.listen(8080, ()=>console.log("Server started on the port num 8080"));
+
+app.listen(8080, ()=>console.log("server started on port 8080"))
